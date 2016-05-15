@@ -1,0 +1,25 @@
+#+theme=graphite
+
+Introduction to Go
+18 May 2016
+
+Miguel Molina
+@migrrrr
+https://github.com/mvader
+
+* About me
+
+- Former frontend developer at *Upplication*
+- Full stack web developer at *source{d}* working with JavaScript and Go
+
+* Table of contents
+
+- About Go
+- Basic types
+- Control structures
+- Functions
+- Structs and Interfaces
+- Concurrency
+- Tools
+- Who is using Go?
+- Examples

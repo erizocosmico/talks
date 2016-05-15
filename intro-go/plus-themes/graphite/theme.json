@@ -1,0 +1,7 @@
+{
+    "hide-last-slide": "false",
+    "slide-stylesheets": [
+        "//fonts.googleapis.com/css?family=Roboto:400,300,500,900,700",
+        "slide.css"
+    ]
+}

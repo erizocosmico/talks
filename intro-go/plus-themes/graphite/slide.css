@@ -1,0 +1,99 @@
+section {
+    background-color: rgb(37, 37, 37);
+}
+
+* { text-shadow: none !important }
+
+.slides > article {
+    font-family: 'San Francisco Display', 'Roboto', sans-serif;
+    color: white;
+    font-weight: 400;
+    background-color: transparent;
+    border: none;
+
+    transition: transform .3s ease-out, opacity .3s ease-out;
+    -o-transition: -o-transform .3s ease-out, opacity .3s ease-out;
+    -moz-transition: -moz-transform .3s ease-out, opacity .3s ease-out;
+    -webkit-transition: -webkit-transform .3s ease-out, opacity .3s ease-out;
+}
+
+.first-slide::before {
+  content: " ";
+  display: block;
+  background: url('/gopher.svg');
+  width: 300px;
+  height: 300px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  bottom: 2em;
+  right: 2em;
+}
+
+article.past,
+article.next {
+    opacity: 0.5;
+}
+article.far-past,
+article.far-next {
+    opacity: 0.25;
+}
+
+h1, h3 {
+    font-family: 'San Francisco Text', 'Roboto', sans-serif;
+    color: rgb(140, 227, 230);
+    border: none !important;
+    letter-spacing: 0;
+    font-weight: 100;
+}
+
+.presenter {
+  letter-spacing: 0;
+}
+
+.presenter p,
+.presenter p.link {
+    font-size: 0.9em;
+}
+
+article h3 {
+    font-size: 2em;
+    padding: 0 0 .5em .1em;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 0.75em;
+}
+
+article.first-slide h3,
+article.last-slide h3 {
+    font-size: 1.5em;
+    border: none;
+    padding: none;
+    margin: none;
+}
+
+article.first-slide h1,
+article.last-slide h3 {
+    margin-top: 125px;
+}
+
+code {
+  font-family: 'Hack', monospace !important;
+  color: rgb(148, 239, 234);
+}
+
+div.code {
+  background-color: rgb(45, 45, 45);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 3px;
+  padding: .5em;
+  color: rgb(207, 114, 227);
+}
+
+div.code > pre {
+  font-family: 'Hack', monospace !important;
+  color: white;
+}
+
+a {
+  color: rgb(140, 227, 230) !important;
+}
