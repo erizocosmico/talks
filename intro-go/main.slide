@@ -19,6 +19,7 @@ https://github.com/mvader
 - Control structures
 - Functions
 - Structs and Interfaces
+- The error model
 - Concurrency
 - Packages
 - Tools
@@ -99,6 +100,12 @@ Notice that there are no parens! 🎉
 
 .play code/if.go /^func main/,/^}/
 
+* if statement
+
+If allows an initialization statement.
+
+.code code/if_init.go /^func main/,/^}/
+
 * for loop
 
 Go has just one type of loop. No foreach, no while, no nothing else.
@@ -136,6 +143,28 @@ This kind of for each, loops over iterable values: slices, arrays, channels, and
 We all know switch.
 
 .play code/switch.go /^func main/,/^}/
+
+* Functions
+
+.play code/funcs1.go
+
+* Functions
+
+Functions can receive an unspecified number of arguments.
+
+  func Foo(a int, b ...string)
+
+Functions can return more than one element.
+
+  func Foo() (int, string, Foo)
+
+* Functions are first class values
+
+.play code/funcs3.go /^func main/,/^}/
+
+* Functions have their type
+
+  type StringHasher func(string) int64
 
 * Structs
 
@@ -190,3 +219,17 @@ A powerful tool for abstraction. Remember the "implements" keyword from language
 Interfaces can also be composed.
 
 .code code/interface_comp.go
+
+* The error model
+
+Go does not have exceptions. It has panics, but that is not the way you check errors. Panics should not happen. Instead, functions return errors you need to check.
+
+.play code/errors.go /^func main/,/^}/
+
+* Panics and recoveries
+
+.play code/panic.go /^func main/,/^}/
+
+* Panics and recoveries
+
+.play code/recover.go /^func main/,/^}/
