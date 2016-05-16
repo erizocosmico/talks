@@ -39,9 +39,10 @@ https://github.com/mvader
 
 - Be memory safe
 - Easy multithreaded and concurrent programming
-- *Blazing fast compilation*
+- Blazing fast compilation
 - Avoid a verbose type system (Java, C++, ...)
 - Easy dependency management
+- Everyone that knows Go should read and understand a Go codebase
 
 * Hello world
 
