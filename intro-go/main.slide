@@ -20,6 +20,173 @@ https://github.com/mvader
 - Functions
 - Structs and Interfaces
 - Concurrency
+- Packages
 - Tools
 - Who is using Go?
 - Examples
+
+* About Go
+
+- compiled
+- statically and strongly typed
+- garbage collected
+- created by Robert Griesemer, Rob Pike and Ken Thompson on 2007 at Google
+- Announced on 2009
+- 1.0 version released on 2012
+
+* Goals of Go
+
+- Be memory safe
+- Easy multithreaded and concurrent programming
+- *Blazing fast compilation*
+- Avoid a verbose type system (Java, C++, ...)
+- Easy dependency management
+
+* Hello world
+
+.play code/hello.go
+
+* Hello world on the web
+
+.play code/hellonet.go
+
+* Basic types
+
+.code code/types.go /^var/,/^\)/
+
+* Our own types
+
+We can make our own named types.
+
+  type MyInt int
+
+* Arrays and slices
+
+.code code/arrays.go
+
+* Differences between arrays and slices
+
+- An array has a fixed length
+- A slice can grow automatically as you append elements
+- Passing an array to a function copies all the elements
+- Passing a slice to a function does not
+
+As a result of this, arrays are rarely used in Go. Slices are used instead because of their flexibility.
+
+* Maps
+
+A map is a structure that defines a relationship between a key and a value.
+
+.code code/maps.go
+
+* Pointers
+
+Yes, you heard well. Go has pointers. 😱
+But fear not! 💪
+
+.play code/pointers.go /^func main/,/^}/
+
+* Control structures
+
+- if
+- for
+- switch
+- select (we won't see that now, though)
+
+* if statement
+
+Notice that there are no parens! 🎉
+
+.play code/if.go /^func main/,/^}/
+
+* for loop
+
+Go has just one type of loop. No foreach, no while, no nothing else.
+
+As the Golang team says:
+
+  Do less, enable more.
+
+* for loop
+
+The old-school for loop we all know and love.
+
+.play code/for.go /^func main/,/^}/
+
+* for loop
+
+The while for loop.
+
+.play code/for_while.go /^func main/,/^}/
+
+* for loop
+
+Infinite loop. We're not running this one.
+
+.code code/for_infinite.go /^func main/,/^}/
+
+* for loop
+
+This kind of for each, loops over iterable values: slices, arrays, channels, and maps.
+
+.play code/for_range.go /^func main/,/^}/
+
+* switch
+
+We all know switch.
+
+.play code/switch.go /^func main/,/^}/
+
+* Structs
+
+Does Go have classes? Nope. But it does have structs.
+
+.code code/structs.go
+
+* Structs
+
+.play code/structs_init.go /^func main/,/^}/
+
+* Structs
+
+.play code/structs_ptr.go /^func main/,/^}/
+
+* Struct composition
+
+As we don't have classes, we can't have subclasses. But fear not! Composition comes to the rescue!
+
+.code code/struct_comp.go
+
+* Struct composition
+
+.play code/struct_comp2.go /^func main/,/^}/
+
+* Public, private, protected, ...
+
+As you must have noticed, there is no private or protected or public. Go has a clever trick for this.
+
+- Everything that starts with an uppercase letter is public outside it's package.
+- Everything that stats with a lowercase letter is private outside it's package.
+- Everything is visible from inside the package.
+
+  type myPrivateType int64
+  type MyPublicType int64
+
+
+Again, do less, enable more.
+
+* Interfaces
+
+A powerful tool for abstraction. Remember the "implements" keyword from languages like Java? Then forget about it. In Go, types implement the interfaces implicitly.
+
+.code code/interfaces.go
+
+* Interfaces
+
+.play code/interfaces2.go /^func main/,/^}/
+
+* Interfaces
+
+Interfaces can also be composed.
+
+.code code/interface_comp.go
