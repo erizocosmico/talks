@@ -423,3 +423,17 @@ Because Go is very simple, it's really easy to build powerful tools for the lang
 * Tools
 
 And a lot more. We can say many things about Go, but not that its tool ecosystem is not good.
+
+* Libraries
+
+The standard library of Go is very, very complete. It has packages for almost everything you will need.
+
+.link https://golang.org/pkg/ The standard library
+
+But, if you need more things just do a search on GitHub, there are tons of libraries.
+
+.link https://github.com/search?o=desc&q=golang+web+framework&ref=searchresults&s=stars&type=Repositories&utf8=%E2%9C%93 Golang web frameworks on GitHub
+
+Or take a look at `awesome-go` list.
+
+.link https://github.com/avelino/awesome-go awesome-go
