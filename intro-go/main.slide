@@ -234,3 +234,42 @@ Go does not have exceptions. It has panics, but that is not the way you check er
 * Panics and recoveries
 
 .play code/recover.go /^func main/,/^}/
+
+* Concurrency
+
+Go has two built-in things for concurrency.
+
+- Channels
+- Goroutines
+
+* Channels
+
+A channel is like a tube where you can send an receive things from. You receive the things in the same order you sent them and only once in a synchronous way.
+
+You can create a channel with `make`.
+
+  var myChan = make(chan int)
+
+You can also give a buffer to channels (how many items accept until block).
+
+  var myBufferedChan = make(chan int, 2)
+
+* Channels
+
+- Send and receive operations are blocking. You can't send until someone is reading and you can't receive until someone sends something.
+- Nil channels block forever.
+- Sending on a closed channel causes a panic.
+
+* Channels
+
+Let's see some action.
+
+.code code/chans1.go
+
+But that does NOT work. As I said, sending needs someone reading, so it will block forever.
+
+* Channels
+
+Now it works.
+
+.play code/chans2.go /^func main/,/^}/
