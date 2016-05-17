@@ -15,16 +15,15 @@ https://github.com/mvader
 * Table of contents
 
 - About Go
-- Basic types
-- Control structures
+- Basic types and control structures
 - Functions
 - Structs and Interfaces
 - The error model
 - Concurrency
 - Packages
+- Generics
 - Tools
 - Who is using Go?
-- Examples
 
 * About Go
 
@@ -381,6 +380,25 @@ A cool thing about all this is that allows for tools like this to be built:
 
 Again, do less, enable more.
 
+* Generics
+
+So, we've cover almost the whole language but generics have not been mentioned. Why?
+
+Because Go does not have generics 😱😰😨(and it won't probably have them for a long time)
+
+* What do we do instead?
+
+- interfaces
+- `interface{}`
+
+* interface{}
+
+Just like you can declare struct types inline you can declare interface types inline. An interface with no methods is implemented by every other type, that is, everything can be a `interface{}`.
+
+.play code/interface.go /^func main/,/^}/
+
+Downsides? Yes, it's not compile-time safe.
+
 * Tools
 
 Because Go is very simple, it's really easy to build powerful tools for the language.
@@ -437,3 +455,23 @@ But, if you need more things just do a search on GitHub, there are tons of libra
 Or take a look at `awesome-go` list.
 
 .link https://github.com/avelino/awesome-go awesome-go
+
+* Who uses Go?
+
+- Google
+- Docker
+- CloudFlare
+- DigitalOcean
+- CoreOS
+- source{d}
+- Dropbox
+- GitHub
+- MongoDB
+
+.link https://github.com/golang/go/wiki/GoUsers And a lot more
+
+* Where to Go(lang) from here?
+
+.link https://tour.golang.org/welcome/1 Golang interactive tour
+.link https://golang.org/ref/spec Golang spec
+.link https://golang.org/doc/faq Golang FAQ
