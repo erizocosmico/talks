@@ -97,3 +97,22 @@ div.code > pre {
 a {
   color: rgb(140, 227, 230) !important;
 }
+
+.buttons button {
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  font-size: 0.5em;
+  padding: 0.2em 0.8em;
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.0980392);
+}
+
+.buttons button + button {
+  margin-left: .3em;
+}
+
+.output {
+  border-radius: 3px !important;
+  box-shadow: 0 0 50px rgba(0, 0, 0, .5);
+}
