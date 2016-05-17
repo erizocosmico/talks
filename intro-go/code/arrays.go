@@ -2,10 +2,10 @@
 var numberArray = [4]int{1, 2, 3, 4}
 
 var numbers = []int{1, 2, 3, 4}
-var noNumbers = nil
+var noNumbers []int = nil
 
 // We can add more numbers
-numbers = append(numbers, 5)
+numbers = append(numbers, 5, 6, 7)
 
 // nil is a valid slice
 noNumbers = append(noNumbers, 1)

@@ -82,8 +82,11 @@ A map is a structure that defines a relationship between a key and a value.
 
 * Pointers
 
-Yes, you heard well. Go has pointers. 😱
-But fear not! 💪
+Yes, you heard well. Go has pointers.
+
+.image https://media.giphy.com/media/1p7AQGCLlzxQc/giphy.gif
+
+* Pointers
 
 .play code/pointers.go /^func main/,/^}/
 
@@ -215,6 +218,8 @@ Go does not have exceptions. It has panics, but that is not the way you check er
 * Panics and recoveries
 
 .play code/panic.go /^func main/,/^}/
+
+.image https://media.giphy.com/media/KmTnUKop0AfFm/giphy.gif
 
 * Panics and recoveries
 
@@ -386,6 +391,8 @@ So, we've cover almost the whole language but generics have not been mentioned. 
 
 Because Go does not have generics 😱😰😨(and it won't probably have them for a long time)
 
+.image https://media.giphy.com/media/ze5w99aUxJrsA/giphy.gif
+
 * What do we do instead?
 
 - interfaces
@@ -442,6 +449,8 @@ Because Go is very simple, it's really easy to build powerful tools for the lang
 
 And a lot more. We can say many things about Go, but not that its tool ecosystem is not good.
 
+.image https://media.giphy.com/media/l2Je0ZdFV02q7wncc/giphy.gif
+
 * Libraries
 
 The standard library of Go is very, very complete. It has packages for almost everything you will need.
@@ -475,3 +484,13 @@ Or take a look at `awesome-go` list.
 .link https://tour.golang.org/welcome/1 Golang interactive tour
 .link https://golang.org/ref/spec Golang spec
 .link https://golang.org/doc/faq Golang FAQ
+
+* Questions?
+
+Come on, don't be shy.
+
+.image https://media.giphy.com/media/3orieXDSb5yko99Ht6/giphy.gif
+
+* Well, thats it folks!
+
+.image https://media.giphy.com/media/nTqBNQXlEixLa/giphy.gif
