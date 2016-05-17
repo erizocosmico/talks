@@ -191,20 +191,6 @@ As we don't have classes, we can't have subclasses. But fear not! Composition co
 
 .play code/struct_comp2.go /^func main/,/^}/
 
-* Public, private, protected, ...
-
-As you must have noticed, there is no private or protected or public. Go has a clever trick for this.
-
-- Everything that starts with an uppercase letter is public outside it's package.
-- Everything that stats with a lowercase letter is private outside it's package.
-- Everything is visible from inside the package.
-
-  type myPrivateType int64
-  type MyPublicType int64
-
-
-Again, do less, enable more.
-
 * Interfaces
 
 A powerful tool for abstraction. Remember the "implements" keyword from languages like Java? Then forget about it. In Go, types implement the interfaces implicitly.
@@ -308,3 +294,132 @@ But that does NOT work. As I said, sending needs someone reading, so it will blo
 Now it works.
 
 .play code/chans2.go /^func main/,/^}/
+
+* Packages
+
+You must have noticed this line.
+
+  package main
+
+This is to declare in which package the file is in. A package is a group of files inside a folder.
+
+* Packages
+
+- Names should be concise and short
+- `main` function needs to be on the `main` package
+- All files in the same directory must have the same package name
+
+* Public, private, protected, ...
+
+As you must have noticed, there is no private or protected or public. Go has a clever trick for this.
+
+- Everything that starts with an uppercase letter is public outside it's package.
+- Everything that stats with a lowercase letter is private outside it's package.
+- Everything is visible from inside the package.
+
+  type myPrivateType int64
+  type MyPublicType int64
+
+Again, do less, enable more.
+
+* Imports
+
+.code code/imports.go
+
+* Imports
+
+Imports are the absolute path from the `$GOPATH` directory.
+
+Imagine we have a directory here:
+
+  $GOPATH/src/github.com/foo/bar
+
+The import would be:
+
+  import "github.com/foo/bar"
+
+And we access the members of the package like this:
+
+  bar.MyThing
+
+* Why?
+
+Why all this? you must be wondering.
+
+- All in one place
+- No need for `package.json`, `Gemfile`, etc.
+
+Downsides?
+
+- Same version of the package for everything (but that's a good thing, it forces you to be up to date)
+
+* Install packages
+
+  go get github.com/foo/bar
+
+It automatically knows if a URL is from a git, svn, bazaar or mercurial repository and downloads it.
+
+We can also install all the dependencies of our code like this:
+
+  go get ./...
+
+And update them like this:
+
+  go get -u ./...
+
+* Cool tools for packages
+
+A cool thing about all this is that allows for tools like this to be built:
+
+- `GoDoc`: any go gettable dependency has out of the box a documentation page.
+
+.link http://godoc.org/github.com/gin-gonic/gin
+
+- `gopkg.in`: allows versioning via URL (it overcomes the downsides mentioned before!) using control version tags without doing anything else. It just works.
+
+.link http://gopkg.in/mgo.v2
+
+Again, do less, enable more.
+
+* Tools
+
+Because Go is very simple, it's really easy to build powerful tools for the language.
+
+- `go` `get`: the dependency manager
+- `go` `vet`: analyse and find common mistakes.
+- `go` `lint`: checks for style violations.
+- `go` `fmt`: curly braces on new line or the same? This does not happen in Go. There is The One True Way Of Formatting™ and everyone uses the same. No style discussions in Go.
+- `go` `imports`: automatically infer the imports of your code and add them and `go` `fmt` your code.
+
+* Testing
+
+`go` `test` runs our tests.
+
+  go test -v ./mypkg/...
+
+* Benchmarks
+
+`go` `test` has out of the box support for benchmarks.
+
+  go test -bench=. ./mypkg/...
+
+  PASS
+  benchmark                                    iter    time/iter
+  ---------                                    ----    ---------
+  BenchmarkCSSEscaper                       1000000   2843 ns/op
+  BenchmarkCSSEscaperNoSpecials             5000000    671 ns/op
+  BenchmarkDecodeCSS                        1000000   1183 ns/op
+  ok  	html/template	62.874s
+
+* Coverage
+
+`go` `tool` `cover`: automatically generates a report of the coverage of your code. Even with HTML. Like this one:
+
+.link http://127.0.0.1:4999/assets/coverage.html Example html coverage
+
+  go test -coverprofile=cover.out ./mypkg
+  go tool cover -hmtl=cover.out
+
+* Tools
+
+And a lot more. We can say many things about Go, but not that its tool ecosystem is not good.

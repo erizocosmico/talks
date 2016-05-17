@@ -1,0 +1,641 @@
+
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+
+				<option value="file0">github.com/mvader/go-itergen/generator/file.go (87.5%)</option>
+
+				<option value="file1">github.com/mvader/go-itergen/generator/generator.go (64.3%)</option>
+
+				<option value="file2">github.com/mvader/go-itergen/generator/template.go (76.9%)</option>
+
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+
+			</div>
+		</div>
+		<div id="content">
+
+		<pre class="file" id="file0" style="display: none">package generator
+
+import (
+        "io/ioutil"
+        "os"
+        "regexp"
+        "strings"
+)
+
+var fileNameRegex = regexp.MustCompile(`[^a-zA-Z0-9]`)
+
+func fileify(t string) string <span class="cov8" title="1">{
+        return strings.ToLower(fileNameRegex.ReplaceAllString(t, ""))
+}</span>
+
+func deleteIfExists(file string) error <span class="cov8" title="1">{
+        _, err := os.Stat(file)
+        if os.IsNotExist(err) </span><span class="cov8" title="1">{
+                return nil
+        }</span>
+
+        <span class="cov8" title="1">return os.Remove(file)</span>
+}
+
+func write(file string, code []byte) error <span class="cov8" title="1">{
+        if err := deleteIfExists(file); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">return ioutil.WriteFile(file, code, 0644)</span>
+}
+</pre>
+
+		<pre class="file" id="file1" style="display: none">package generator
+
+import (
+        "bytes"
+        "errors"
+        "fmt"
+        "go/format"
+        "io"
+        "path/filepath"
+        "sort"
+        "strings"
+        "text/template"
+)
+
+// Generator generates functions for iterable types based on the options received
+type Generator struct {
+        RawType string   `short:"t" long:"type" description:"type to generate the code for" required:"true"`
+        Package string   `long:"pkg" description:"package of the resultant file" required:"true"`
+        Map     []string `long:"map" description:"generate Map function with transformer for given type"`
+        Filter  bool     `long:"filter" description:"generate Filter function"`
+        All     bool     `long:"all" description:"generate All function"`
+        Some    bool     `long:"some" description:"generate Some function"`
+        ForEach bool     `long:"foreach" description:"generate ForEach function"`
+        Concat  bool     `long:"concat" description:"generate Concat function"`
+        Find    bool     `long:"find" description:"generate Find function"`
+        Reverse bool     `long:"reverse" description:"generate Reverse function"`
+        Splice  bool     `long:"splice" description:"generate Splice function"`
+        Reduce  []string `long:"reduce" description:"generate Reduce function for given type"`
+        Array   bool     `long:"array" description:"generate Array function for channel type"`
+
+        Type        TypeDef
+        MapResults  []TypeDef
+        ReduceTypes []TypeDef
+}
+
+// TypeDef is a type definition, with name, package and type
+type TypeDef struct {
+        Name    string
+        Package string
+        Type    string
+        IsChan  bool
+}
+
+type generatorFunc func(io.Writer) error
+
+func (g *Generator) parseTypes() error <span class="cov8" title="1">{
+        td, err := g.parseType(g.RawType)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">g.Type = td
+
+        for _, m := range g.Map </span><span class="cov8" title="1">{
+                td, err := g.parseType(m)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">g.MapResults = append(g.MapResults, td)</span>
+        }
+
+        <span class="cov8" title="1">for _, r := range g.Reduce </span><span class="cov8" title="1">{
+                td, err := g.parseType(r)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">g.ReduceTypes = append(g.ReduceTypes, td)</span>
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (g *Generator) parseType(raw string) (TypeDef, error) <span class="cov8" title="1">{
+        var (
+                t   TypeDef
+                err error
+        )
+
+        t.Package, t.Type, t.IsChan, err = g.parseRawType(raw)
+        t.Name = g.getTypeName(t.Type)
+
+        return t, err
+}</span>
+
+func (g *Generator) parseRawType(raw string) (string, string, bool, error) <span class="cov8" title="1">{
+        var (
+                pkg    string
+                typ    string
+                isChan bool
+                err    error
+        )
+
+        typeParts := strings.Split(raw, ":")
+        if len(typeParts) == 1 </span><span class="cov8" title="1">{
+                typ, isChan, err = parseType(raw)
+        }</span><span class="cov8" title="1"> else {
+                pkg = typeParts[0]
+                typ, isChan, err = parseType(typeParts[1])
+        }</span>
+
+        <span class="cov8" title="1">return pkg, typ, isChan, err</span>
+}
+
+func (g *Generator) getTypeName(t string) string <span class="cov8" title="1">{
+        if strings.HasPrefix(t, "*") </span><span class="cov8" title="1">{
+                t = t[1:]
+        }</span>
+
+        <span class="cov8" title="1">if strings.Contains(t, ".") </span><span class="cov8" title="1">{
+                tParts := strings.Split(t, ".")
+                return strings.Title(tParts[0]) + strings.Title(tParts[1])
+        }</span>
+
+        <span class="cov8" title="1">return strings.Title(t)</span>
+}
+
+func (g *Generator) generatePackage(w io.Writer) error <span class="cov8" title="1">{
+        pkg := fmt.Sprintf("package %s\n\n", g.Package)
+        _, err := w.Write([]byte(pkg))
+        return err
+}</span>
+
+func (g *Generator) generateImports(w io.Writer) error <span class="cov8" title="1">{
+        pkgs := map[string]struct{}{
+                "errors": struct{}{},
+        }
+
+        if g.Type.Package != "" </span><span class="cov8" title="1">{
+                pkgs[g.Type.Package] = struct{}{}
+        }</span>
+
+        <span class="cov8" title="1">for _, mr := range g.MapResults </span><span class="cov8" title="1">{
+                if mr.Package != "" </span><span class="cov8" title="1">{
+                        pkgs[mr.Package] = struct{}{}
+                }</span>
+        }
+
+        <span class="cov8" title="1">if g.Type.IsChan &amp;&amp; g.Concat </span><span class="cov0" title="0">{
+                pkgs["sync"] = struct{}{}
+        }</span>
+
+        <span class="cov8" title="1">var packages []string
+        for pkg := range pkgs </span><span class="cov8" title="1">{
+                packages = append(packages, pkg)
+        }</span>
+
+        <span class="cov8" title="1">tpl, err := g.getTpl(importsTpl)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">sort.Strings(packages)
+        return tpl.Execute(w, packages)</span>
+}
+
+func (g *Generator) generateType(w io.Writer) error <span class="cov8" title="1">{
+        tpl, err := g.getTpl(typeTpl)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+}
+
+func (g *Generator) generateSome(w io.Writer) error <span class="cov8" title="1">{
+        if g.Some </span><span class="cov8" title="1">{
+                if g.Type.IsChan </span><span class="cov0" title="0">{
+                        return errors.New("chan type does not support some")
+                }</span>
+
+                <span class="cov8" title="1">tpl, err := g.getTpl(someTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateAll(w io.Writer) error <span class="cov8" title="1">{
+        if g.All </span><span class="cov8" title="1">{
+                if g.Type.IsChan </span><span class="cov0" title="0">{
+                        return errors.New("chan type does not support all")
+                }</span>
+
+                <span class="cov8" title="1">tpl, err := g.getTpl(allTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateFilter(w io.Writer) error <span class="cov8" title="1">{
+        if g.Filter </span><span class="cov8" title="1">{
+                tpl, err := g.getTpl(filterTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateMap(w io.Writer) error <span class="cov8" title="1">{
+        if len(g.Map) &gt; 0 </span><span class="cov8" title="1">{
+                tpl, err := g.getTpl(mapTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateMapResults(w io.Writer) error <span class="cov8" title="1">{
+        if len(g.Map) &gt; 0 </span><span class="cov8" title="1">{
+                data := struct {
+                        Name    string
+                        Results []TypeDef
+                }{
+                        Name:    g.Type.Name,
+                        Results: g.MapResults,
+                }
+
+                tpl, err := g.getTpl(mapResultsTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, data)</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateForEach(w io.Writer) error <span class="cov8" title="1">{
+        if g.ForEach </span><span class="cov8" title="1">{
+                tpl, err := g.getTpl(forEachTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateConcat(w io.Writer) error <span class="cov8" title="1">{
+        if g.Concat </span><span class="cov8" title="1">{
+                tpl, err := g.getTpl(concatTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateFind(w io.Writer) error <span class="cov8" title="1">{
+        if g.Find </span><span class="cov8" title="1">{
+                if g.Type.IsChan </span><span class="cov0" title="0">{
+                        return errors.New("chan iter does not support find")
+                }</span>
+
+                <span class="cov8" title="1">tpl, err := g.getTpl(findTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateReverse(w io.Writer) error <span class="cov8" title="1">{
+        if g.Reverse </span><span class="cov8" title="1">{
+                if g.Type.IsChan </span><span class="cov0" title="0">{
+                        return errors.New("chan iter does not support reverse")
+                }</span>
+
+                <span class="cov8" title="1">tpl, err := g.getTpl(reverseTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateSplice(w io.Writer) error <span class="cov8" title="1">{
+        if g.Splice </span><span class="cov8" title="1">{
+                if g.Type.IsChan </span><span class="cov0" title="0">{
+                        return errors.New("a chan iter does not support splice")
+                }</span>
+
+                <span class="cov8" title="1">tpl, err := g.getTpl(spliceTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, g.Type)</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateReduces(w io.Writer) error <span class="cov8" title="1">{
+        if len(g.Reduce) &gt; 0 </span><span class="cov8" title="1">{
+                data := struct {
+                        Name     string
+                        Type     string
+                        Reducers []TypeDef
+                }{
+                        Name:     g.Type.Name,
+                        Type:     g.Type.Type,
+                        Reducers: g.ReduceTypes,
+                }
+
+                tpl, err := g.getTpl(reduceTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">return tpl.Execute(w, data)</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) generateArray(w io.Writer) error <span class="cov0" title="0">{
+        if g.Array </span><span class="cov0" title="0">{
+                if !g.Type.IsChan </span><span class="cov0" title="0">{
+                        return errors.New("array is not supported on non-channel types")
+                }</span>
+
+                <span class="cov0" title="0">tpl, err := g.getTpl(arrayTpl)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">return tpl.Execute(w, g.Type)</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (g *Generator) getTpl(tpl string) (*template.Template, error) <span class="cov8" title="1">{
+        return getTemplate(tpl, g.Type.IsChan)
+}</span>
+
+func (g *Generator) generateCode() ([]byte, error) <span class="cov0" title="0">{
+        generators := []generatorFunc{
+                g.generatePackage,
+                g.generateImports,
+                g.generateType,
+                g.generateMap,
+                g.generateMapResults,
+                g.generateFilter,
+                g.generateAll,
+                g.generateSome,
+                g.generateForEach,
+                g.generateConcat,
+                g.generateFind,
+                g.generateReverse,
+                g.generateSplice,
+                g.generateReduces,
+                g.generateArray,
+        }
+
+        buf := bytes.NewBuffer(nil)
+        for _, gen := range generators </span><span class="cov0" title="0">{
+                err := gen(buf)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+        }
+
+        <span class="cov0" title="0">return buf.Bytes(), nil</span>
+}
+
+const (
+        fileTpl     = "%s_iter.go"
+        chanFileTpl = "%schan_iter.go"
+)
+
+func (g *Generator) fileName() string <span class="cov8" title="1">{
+        tpl := fileTpl
+        if g.Type.IsChan </span><span class="cov0" title="0">{
+                tpl = chanFileTpl
+        }</span>
+
+        <span class="cov8" title="1">file := fmt.Sprintf(tpl, fileify(g.Type.Type))
+        return filepath.Join(".", file)</span>
+}
+
+// Generate writes the generated code to the correspondant file and returns an error if something failed
+func (g *Generator) Generate() error <span class="cov0" title="0">{
+        err := g.parseTypes()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">code, err := g.generateCode()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">code, err = format.Source(code)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">return write(g.fileName(), code)</span>
+}
+
+func parseType(t string) (string, bool, error) <span class="cov8" title="1">{
+        if strings.Contains(t, "&lt;-") </span><span class="cov0" title="0">{
+                return "", false, fmt.Errorf("invalid channel type given: %s", t)
+        }</span>
+
+        <span class="cov8" title="1">tParts := strings.Split(t, " ")
+        return tParts[len(tParts)-1], strings.HasPrefix(t, "chan"), nil</span>
+}
+</pre>
+
+		<pre class="file" id="file2" style="display: none">package generator
+
+import (
+        "fmt"
+        "io/ioutil"
+        "os"
+        "path/filepath"
+        "text/template"
+)
+
+var tpls = map[string]*template.Template{
+        "type":        loadTemplate("type"),
+        "imports":     loadTemplate("imports"),
+        "map":         loadTemplate("map"),
+        "map_results": loadTemplate("map_results"),
+        "filter":      loadTemplate("filter"),
+        "some":        loadTemplate("some"),
+        "all":         loadTemplate("all"),
+        "foreach":     loadTemplate("foreach"),
+        "concat":      loadTemplate("concat"),
+        "find":        loadTemplate("find"),
+        "reverse":     loadTemplate("reverse"),
+        "splice":      loadTemplate("splice"),
+        "reduce":      loadTemplate("reduce"),
+
+        "chan_type":        loadTemplate("chan_type"),
+        "chan_concat":      loadTemplate("chan_concat"),
+        "chan_filter":      loadTemplate("chan_filter"),
+        "chan_map":         loadTemplate("chan_map"),
+        "chan_map_results": loadTemplate("chan_map_results"),
+        "chan_imports":     loadTemplate("imports"),
+        "chan_foreach":     loadTemplate("chan_foreach"),
+        "chan_reduce":      loadTemplate("chan_reduce"),
+        "chan_array":       loadTemplate("chan_array"),
+}
+
+const (
+        typeTpl       = "type"
+        importsTpl    = "imports"
+        mapTpl        = "map"
+        mapResultsTpl = "map_results"
+        filterTpl     = "filter"
+        someTpl       = "some"
+        allTpl        = "all"
+        forEachTpl    = "foreach"
+        concatTpl     = "concat"
+        findTpl       = "find"
+        reverseTpl    = "reverse"
+        spliceTpl     = "splice"
+        reduceTpl     = "reduce"
+        arrayTpl      = "array"
+)
+
+func loadTemplateText(name string) string <span class="cov8" title="1">{
+        f := filepath.Join(os.Getenv("GOPATH"), "src/github.com/mvader/go-itergen/generator/templates", fmt.Sprintf("%s.tgo", name))
+
+        b, err := ioutil.ReadFile(f)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov8" title="1">return string(b)</span>
+}
+
+func loadTemplate(name string) *template.Template <span class="cov8" title="1">{
+        text := loadTemplateText(name)
+        return template.Must(template.New(name).Parse(text))
+}</span>
+
+func getTemplate(name string, isChan bool) (*template.Template, error) <span class="cov8" title="1">{
+        if isChan </span><span class="cov0" title="0">{
+                name = "chan_" + name
+        }</span>
+
+        <span class="cov8" title="1">tpl, ok := tpls[name]
+        if !ok </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("template %s not found", name)
+        }</span>
+
+        <span class="cov8" title="1">return tpl, nil</span>
+}
+</pre>
+
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
