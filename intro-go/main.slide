@@ -242,6 +242,41 @@ Go has two built-in things for concurrency.
 - Channels
 - Goroutines
 
+* Goroutines
+
+A Goroutine is a lightweight thread of execution. There can be multiple goroutines in one actual OS thread.
+
+* Goroutines
+
+Let's imagine we have an expensive computation like calculating `n+1`.
+
+.code code/goro1.go /^func plusOne/,/^}/
+.play code/goro1.go /^func main/,/^}/
+
+* Goroutines
+
+Now, how do we make it parallel? using the keyword `go`.
+
+.play code/goro2.go /^func main/,/^}/
+
+But the program exits before the goroutines are executed.
+
+* Goroutines
+
+How can we fix it?
+
+- channels
+- `sync.WaitGroup`
+- etc
+
+* Goroutines
+
+Purrfect 👍
+
+.play code/goro3.go /^func main/,/^}/
+
+Note that they are not in order!
+
 * Channels
 
 A channel is like a tube where you can send an receive things from. You receive the things in the same order you sent them and only once in a synchronous way.

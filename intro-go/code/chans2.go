@@ -9,7 +9,7 @@ func main() {
 		for i := 0; i < 5; i++ {
 			numbers <- i + 1
 		}
-		close(numbers) // <- we are closing the channel
+		close(numbers)
 	}()
 
 	n := <-numbers
